@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: stream-autel-app
+    restart: unless-stopped
+    ports:
+      - "1935:1935"
+      - "4000:4000"
+      - "8000:8000"
+    volumes:
+      - media:/app/media
+    environment:
+      NODE_ENV: production
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: http://13.251.224.104:4000
+        VITE_HLS_URL: http://13.251.224.104:8000
+        VITE_STREAM_KEY: autelv2
+    container_name: stream-autel-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+
+volumes:
+  media:
